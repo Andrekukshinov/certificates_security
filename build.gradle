@@ -1,0 +1,41 @@
+plugins {
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
+}
+
+subprojects {
+
+    group = 'com.emam.test'
+    version = '0.0.1-SNAPSHOT'
+//    sourceCompatibility = '11'
+
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        // https://mvnrepository.com/artifact/com.h2database/h2
+        implementation 'com.h2database:h2:1.4.200'
+        // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.4.4'
+
+        // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+        implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    }
+
+    configurations {
+        all*.exclude module: 'spring-boot-starter-logging'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+}
+
+
+

@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+
+}
+
+dependencies {
+
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.4.4'
+
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
+
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.4.4'
+}
