@@ -2,6 +2,7 @@ package com.epam.esm.persistence.model.specification;
 
 import com.epam.esm.persistence.entity.Order;
 import com.epam.esm.persistence.entity.User;
+import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;

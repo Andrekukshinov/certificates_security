@@ -6,9 +6,6 @@ import com.epam.esm.persistence.entity.OrderCertificate;
 import com.epam.esm.persistence.entity.Tag;
 import com.epam.esm.persistence.entity.User;
 import com.epam.esm.persistence.entity.enums.GiftCertificateStatus;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.repository.OrderRepository;
 import com.epam.esm.service.dto.certificate.GiftCertificatesNoTagDto;
 import com.epam.esm.service.dto.order.OrderCertificateUnitDto;
@@ -22,6 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -123,7 +123,7 @@ class OrderServiceImplTest {
     @Test
     void testGetUserOrderByIdShouldReturnUserOrderWhenFound() {
         Page<Order> page = new PageImpl<>(List.of(ORDER), Pageable.unpaged(), 1);
-        when(repository.find(any(), any())).thenReturn(page);
+        when(repository.findBySpecification(any(), any())).thenReturn(page);
         when(modelMapper.map(ORDER, OrderCertificatesDto.class)).thenReturn(ORDER_DTO);
 
         OrderCertificatesDto actual = orderService.getUserOrderById(1L, 1L);
@@ -134,7 +134,7 @@ class OrderServiceImplTest {
     @Test
     void testGetUserOrderByIdShouldThrowEntityNotFoundExceptionWhenNotFound() {
         Page<Order> page = new PageImpl<>(new ArrayList<>(), Pageable.unpaged(), 1);
-        when(repository.find(any(), any())).thenReturn(page);
+        when(repository.findBySpecification(any(), any())).thenReturn(page);
         when(modelMapper.map(ORDER, OrderCertificatesDto.class)).thenReturn(ORDER_DTO);
 
         assertThrows(EntityNotFoundException.class, () -> orderService.getUserOrderById(1L, 1L));
@@ -146,7 +146,7 @@ class OrderServiceImplTest {
 
         OrderDetailsDto detailsDto = new OrderDetailsDto(1L, CREATE_DATE, new BigDecimal(500));
         Page<Order> page = new PageImpl<>(List.of(ORDER, ORDER), Pageable.unpaged(), 1);
-        when(repository.find(any(), any())).thenReturn(page);
+        when(repository.findBySpecification(any(), any())).thenReturn(page);
         when(modelMapper.map(ORDER, OrderDetailsDto.class)).thenReturn(detailsDto);
         Page<OrderDetailsDto> expected = new PageImpl<>(List.of(detailsDto, detailsDto), Pageable.unpaged(), 1);
 

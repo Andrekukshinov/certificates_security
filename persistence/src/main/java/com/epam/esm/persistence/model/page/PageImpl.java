@@ -52,7 +52,7 @@ public class PageImpl<T> implements Page<T> {
 
     @Override
     public boolean hasPrevious() {
-        return page > 0 && page < (lastPage);
+        return page > 1 && page <= (lastPage);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class PageImpl<T> implements Page<T> {
 
     @Override
     public boolean hasNext() {
-        return page < lastPage - 1 && page > -1;
+        return page < lastPage && page > 0;
     }
 
     @Override

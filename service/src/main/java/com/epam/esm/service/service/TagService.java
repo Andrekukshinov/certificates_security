@@ -1,10 +1,10 @@
 package com.epam.esm.service.service;
 
 import com.epam.esm.persistence.entity.Tag;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ValidationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Set;
 

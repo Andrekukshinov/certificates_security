@@ -1,13 +1,14 @@
 package com.epam.esm.web.controller;
 
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.service.TagService;
 import com.epam.esm.service.validation.SaveGroup;
-import com.epam.esm.web.helper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,27 +18,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.validation.constraints.Min;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1/tags")
+@Validated
 public class TagController {
 
     private final TagService tagService;
-    private final PageHelper pageHelper;
+    private final PagedResourcesAssembler<TagDto> tagAssembler;
+
 
     @Autowired
-    public TagController(TagService tagService, PageHelper pageHelper) {
+    public TagController(TagService tagService, PagedResourcesAssembler<TagDto> tagAssembler) {
         this.tagService = tagService;
-        this.pageHelper = pageHelper;
+        this.tagAssembler = tagAssembler;
     }
 
     @PostMapping
@@ -50,11 +51,11 @@ public class TagController {
     }
 
     private void getAllRef(TagDto tag) {
-        tag.add(linkTo(methodOn(TagController.class).getAll(new HashMap<>())).withRel("all"));
+        tag.add(linkTo(methodOn(TagController.class).getAll(null)).withRel("all"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TagDto> getTagById(@PathVariable Long id) {
+    public ResponseEntity<TagDto> getTagById(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long id) {
         TagDto tag = tagService.getTag(id);
         tag.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
         getAllRef(tag);
@@ -63,53 +64,15 @@ public class TagController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTag(@PathVariable Long id) {
+    public void deleteTag(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long id) {
         tagService.deleteTag(id);
     }
 
     @GetMapping()
-    public ResponseEntity<CollectionModel<TagDto>> getAll(@RequestParam Map<String, String> requestParams) {
-        Pageable pageable = pageHelper.getPageable(requestParams);
-        Page<TagDto> page = tagService.getAll(pageable);
-        CollectionModel<TagDto> of = getTagsBuiltLinks(requestParams, page);
-        return ResponseEntity.ok(of);
+    public ResponseEntity<PagedModel<EntityModel<TagDto>>> getAll(Pageable pageable) {
+        Page<TagDto> all = tagService.getAll(pageable);
+        PagedModel<EntityModel<TagDto>> entityModels = tagAssembler.toModel(all);
+        return ResponseEntity.ok(entityModels);
     }
 
-    private CollectionModel<TagDto> getTagsBuiltLinks(Map<String, String> requestParams, Page<TagDto> page) {
-        CollectionModel<TagDto> of = CollectionModel.of(page.getContent());
-        if (page.hasFirst()) {
-            of.add(linkTo(
-                    methodOn(TagController.class)
-                            .getAll(pageHelper.getPageParamMap(requestParams, page.getFirstPage())))
-                    .withRel("first")
-            );
-        }
-        if (page.hasPrevious()) {
-            of.add(linkTo(
-                    methodOn(TagController.class)
-                            .getAll(pageHelper.getPreviousPageParamMap(requestParams, page.getPreviousPage())))
-                    .withRel("previous")
-            );
-        }
-        of.add(linkTo(
-                methodOn(TagController.class)
-                        .getAll(pageHelper.getThisPageParamMap(requestParams, page.getPage())))
-                .withRel("this")
-        );
-        if (page.hasNext()) {
-            of.add(linkTo(
-                    methodOn(TagController.class)
-                            .getAll(pageHelper.getNextPageParamMap(requestParams, page.getNextPage())))
-                    .withRel("next")
-            );
-        }
-        if (page.hasLast()) {
-            of.add(linkTo(
-                    methodOn(TagController.class)
-                            .getAll(pageHelper.getPageParamMap(requestParams, page.getLastPage())))
-                    .withRel("last")
-            );
-        }
-        return of;
-    }
 }

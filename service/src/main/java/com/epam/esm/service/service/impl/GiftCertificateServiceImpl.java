@@ -3,16 +3,12 @@ package com.epam.esm.service.service.impl;
 import com.epam.esm.persistence.entity.GiftCertificate;
 import com.epam.esm.persistence.entity.Tag;
 import com.epam.esm.persistence.entity.enums.GiftCertificateStatus;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.model.specification.CertificateDescriptionSpecification;
 import com.epam.esm.persistence.model.specification.CertificateNameSpecification;
 import com.epam.esm.persistence.model.specification.CertificatesStatusSpecification;
 import com.epam.esm.persistence.model.specification.FindAllActiveCertificatesSpecification;
 import com.epam.esm.persistence.model.specification.FindByIdInSpecification;
 import com.epam.esm.persistence.model.specification.GiftCertificateTagNamesSpecification;
-import com.epam.esm.persistence.model.specification.Specification;
 import com.epam.esm.persistence.repository.GiftCertificateRepository;
 import com.epam.esm.service.dto.certificate.GiftCertificateTagDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
@@ -23,6 +19,9 @@ import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.service.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
@@ -108,19 +106,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public Page<GiftCertificateTagDto> getBySpecification(RequestParams params, Pageable pageable) {
         Page<GiftCertificate> page = getCertificatesBySpecification(params, pageable);
-        List<GiftCertificateTagDto> contentDto = page.getContent()
-                .stream()
-                .map(order -> modelMapper.map(order, GiftCertificateTagDto.class))
-                .collect(Collectors.toList());
-        return new PageImpl<>(contentDto, pageable, page.getLastPage());
+        return page.map(order -> modelMapper.map(order, GiftCertificateTagDto.class));
     }
 
     @Override
     public Page<GiftCertificate> getCertificatesBySpecification(RequestParams params, Pageable pageable) {
         Specification<GiftCertificate> specification = getGiftCertificateSpecification(params);
         Page<GiftCertificate> page = certificateRepository.findBySpecification(specification, pageable);
-        Integer lastPage = page.getLastPage();
-        Integer currentPage = page.getPage();
+        Integer lastPage = page.getTotalPages();
+        Integer currentPage = page.getNumber() + 1;
+        //todo #1
         if (lastPage < currentPage){
             throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
         }

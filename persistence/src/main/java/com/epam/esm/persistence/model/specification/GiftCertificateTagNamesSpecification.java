@@ -2,6 +2,7 @@ package com.epam.esm.persistence.model.specification;
 
 import com.epam.esm.persistence.entity.GiftCertificate;
 import com.epam.esm.persistence.entity.Tag;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.criteria.CriteriaBuilder;

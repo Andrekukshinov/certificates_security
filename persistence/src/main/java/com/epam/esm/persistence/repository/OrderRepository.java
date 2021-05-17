@@ -1,9 +1,9 @@
 package com.epam.esm.persistence.repository;
 
 import com.epam.esm.persistence.entity.Order;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.Pageable;
-import com.epam.esm.persistence.model.specification.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 /**
  * Interface for executing operations with order entity within data source
@@ -17,5 +17,5 @@ public interface OrderRepository extends ReadOperationRepository<Order>, CreateR
      * @param pageable      description of page retrieved
      * @return page with found orders
      */
-    Page<Order> find(Specification<Order> specification, Pageable pageable);
+    Page<Order> findBySpecification(Specification<Order> specification, Pageable pageable);
 }

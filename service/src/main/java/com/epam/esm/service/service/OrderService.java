@@ -1,9 +1,9 @@
 package com.epam.esm.service.service;
 
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.service.dto.order.OrderCertificatesDto;
 import com.epam.esm.service.dto.order.OrderDetailsDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Interface for performing business logics for OrderCertificatesDto and OrderDetailsDto

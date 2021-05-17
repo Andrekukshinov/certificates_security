@@ -1,11 +1,11 @@
 package com.epam.esm.service.service;
 
 import com.epam.esm.persistence.entity.GiftCertificate;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.service.dto.certificate.GiftCertificateTagDto;
 import com.epam.esm.service.exception.ValidationException;
 import com.epam.esm.service.model.RequestParams;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 /**

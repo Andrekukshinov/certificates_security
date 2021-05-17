@@ -28,6 +28,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,9 +89,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = ValidationException.class)
     protected ResponseEntity<Object> handleConflict(ValidationException ex, WebRequest request) {
-        LOGGER.error(ex.getMessage(), ex);
-        ExceptionModel body = new ExceptionModel(ex.getMessage(), BAD_REQUEST);
-        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return getErrorResponseEntity(ex, request);
     }
 
     @ExceptionHandler(value = DeleteTagInUseException.class)
@@ -102,23 +101,26 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = InvalidValueException.class)
     protected ResponseEntity<Object> handleConflict(InvalidValueException ex, WebRequest request) {
-        LOGGER.error(ex.getMessage(), ex);
-        ExceptionModel body = new ExceptionModel(ex.getMessage(), BAD_REQUEST);
-        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return getErrorResponseEntity(ex, request);
     }
 
     @ExceptionHandler(value = SortingException.class)
     protected ResponseEntity<Object> handleConflict(SortingException ex, WebRequest request) {
+        return getErrorResponseEntity(ex, request);
+    }
+
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConflict(ConstraintViolationException ex, WebRequest request) {
         LOGGER.error(ex.getMessage(), ex);
-        ExceptionModel body = new ExceptionModel(ex.getMessage(), BAD_REQUEST);
+        String message = ex.getConstraintViolations().stream().findFirst().get().getMessage();
+        ExceptionModel body = new ExceptionModel(message, BAD_REQUEST);
         return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
+
     @ExceptionHandler(value = InvalidPageException.class)
     protected ResponseEntity<Object> handleConflict(InvalidPageException ex, WebRequest request) {
-        LOGGER.error(ex.getMessage(), ex);
-        ExceptionModel body = new ExceptionModel(ex.getMessage(), BAD_REQUEST);
-        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return getErrorResponseEntity(ex, request);
     }
 
     @Override
@@ -132,9 +134,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        LOGGER.error(ex.getMessage(), ex);
-        ExceptionModel body = new ExceptionModel(ex.getMessage(), BAD_REQUEST);
-        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return getErrorResponseEntity(ex, request);
     }
 
     @Override
@@ -152,5 +152,15 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
+    private ResponseEntity<Object> getErrorResponseEntity(Exception ex, WebRequest request) {
+        LOGGER.error(ex.getMessage(), ex);
+        ExceptionModel body = new ExceptionModel(ex.getMessage(), BAD_REQUEST);
+        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
 }
+//todo fix all classes (make them work with spring pageable +
+// migrate to spring data + add abstract repo for all common methods
+// create separate status codes 4 the same exception types with different messages
+//  ask what to do when last page is 0(no content found for the page(#1)) and if cur page > last page
 
