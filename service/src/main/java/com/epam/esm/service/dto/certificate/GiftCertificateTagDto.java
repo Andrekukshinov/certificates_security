@@ -30,7 +30,7 @@ public class GiftCertificateTagDto extends RepresentationModel<GiftCertificateTa
     private String description;
 
     @NotBlank(message = "certificate name must be specified", groups = {UpdateGroup.class, SaveGroup.class})
-    @Size(max = 50, min = 1, message = "certificate name max length must be less than 51 symbol and more than 0!")
+    @Size(max = 20, min = 1, message = "certificate name max length must be less than 21 symbol and more than 0!")
     private String name;
 
     @DecimalMin(value = "0", message = "certificate price cannot be negative")

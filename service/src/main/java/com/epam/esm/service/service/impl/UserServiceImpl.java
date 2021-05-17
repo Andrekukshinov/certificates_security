@@ -1,9 +1,6 @@
 package com.epam.esm.service.service.impl;
 
 import com.epam.esm.persistence.entity.User;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.model.specification.FindAllSpecification;
 import com.epam.esm.persistence.repository.UserRepository;
 import com.epam.esm.service.dto.user.UserInfoDto;
@@ -12,11 +9,11 @@ import com.epam.esm.service.exception.InvalidPageException;
 import com.epam.esm.service.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,12 +38,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserInfoDto> getAll(Pageable pageable) {
         Page<User> userPage = userRepository.findBySpecification(new FindAllSpecification<>(), pageable);
-        List<UserInfoDto> contentDto = userPage.getContent().stream()
-                .map(order -> mapper.map(order, UserInfoDto.class))
-                .collect(Collectors.toList());
-        PageImpl<UserInfoDto> page = new PageImpl<>(contentDto, pageable, userPage.getLastPage());
-        Integer lastPage = page.getLastPage();
-        Integer currentPage = page.getPage();
+        Page<UserInfoDto> page = userPage.map(order -> mapper.map(order, UserInfoDto.class));
+        Integer lastPage = page.getTotalPages();
+        Integer currentPage = page.getNumber() + 1;
         if (lastPage < currentPage){
             throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
         }

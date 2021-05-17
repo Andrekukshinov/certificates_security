@@ -1,8 +1,8 @@
 package com.epam.esm.persistence.repository;
 
 import com.epam.esm.persistence.entity.User;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 /**

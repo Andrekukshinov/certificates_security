@@ -2,9 +2,6 @@ package com.epam.esm.service.service.impl;
 
 import com.epam.esm.persistence.entity.GiftCertificate;
 import com.epam.esm.persistence.entity.Tag;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.repository.GiftCertificateRepository;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.certificate.GiftCertificateTagDto;
@@ -19,6 +16,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

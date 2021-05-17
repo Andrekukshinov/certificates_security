@@ -3,9 +3,6 @@ package com.epam.esm.service.service.impl;
 import com.epam.esm.persistence.entity.GiftCertificate;
 import com.epam.esm.persistence.entity.Order;
 import com.epam.esm.persistence.entity.OrderCertificate;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.model.specification.FindByIdInSpecification;
 import com.epam.esm.persistence.model.specification.FindUserOrdersSpecification;
 import com.epam.esm.persistence.model.specification.OrderByUserIdSpecification;
@@ -22,6 +19,8 @@ import com.epam.esm.service.service.OrderService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -147,14 +146,9 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDetailsDto> getAllUserOrders(Long userId, Pageable pageable) {
         Specification<Order> getAllSpec = new FindUserOrdersSpecification(userId);
         Page<Order> ordersPage = repository.findBySpecification(getAllSpec, pageable);
-        List<Order> content = ordersPage.getContent();
-        List<OrderDetailsDto> contentDto = content
-                .stream()
-                .map(order -> mapper.map(order, OrderDetailsDto.class))
-                .collect(Collectors.toList());
-        PageImpl<OrderDetailsDto> page = new PageImpl<>(contentDto, pageable, ordersPage.getLastPage());
-        Integer lastPage = page.getLastPage();
-        Integer currentPage = page.getPage();
+        Page<OrderDetailsDto> page = ordersPage.map(order -> mapper.map(order, OrderDetailsDto.class));
+        Integer lastPage = page.getTotalPages();
+        Integer currentPage = page.getNumber() + 1;
         if (lastPage < currentPage){
             throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
         }

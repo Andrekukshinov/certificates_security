@@ -1,9 +1,6 @@
 package com.epam.esm.service.service.impl;
 
 import com.epam.esm.persistence.entity.Tag;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.model.specification.FindAllSpecification;
 import com.epam.esm.persistence.model.specification.TagNameSpecification;
 import com.epam.esm.persistence.repository.TagRepository;
@@ -19,14 +16,14 @@ import com.epam.esm.service.validation.Validator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -91,12 +88,9 @@ public class TagServiceImpl implements TagService {
     @Override
     public Page<TagDto> getAll(Pageable pageable) {
         Page<Tag> tagPage = tagRepository.findBySpecification(new FindAllSpecification<>(), pageable);
-        List<TagDto> contentDto = tagPage.getContent().stream()
-                .map(order -> modelMapper.map(order, TagDto.class))
-                .collect(Collectors.toList());
-        PageImpl<TagDto> page = new PageImpl<>(contentDto, pageable, tagPage.getLastPage());
-        Integer lastPage = page.getLastPage();
-        Integer currentPage = page.getPage();
+        Page<TagDto> page = tagPage.map(order -> modelMapper.map(order, TagDto.class));
+        Integer lastPage = page.getTotalPages();
+        Integer currentPage = page.getNumber() + 1;
         if (lastPage < currentPage){
             throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
         }

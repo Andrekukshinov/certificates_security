@@ -1,9 +1,6 @@
 package com.epam.esm.service.service.impl;
 
 import com.epam.esm.persistence.entity.Tag;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.model.specification.TagNameSpecification;
 import com.epam.esm.persistence.repository.TagRepository;
 import com.epam.esm.service.dto.TagDto;
@@ -19,6 +16,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +83,7 @@ class TagServiceImplTest {
 
     @Test
     void testSaveTagShouldEntityAlreadyExistsExceptionWhenTagExists() {
-        when(tagRepository.findBySpecification(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), new Pageable(1, 1, null, null), 1));
+        when(tagRepository.findBySpecification(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), Pageable.unpaged(), 1));
         when(modelMapper.map(any(), any())).thenReturn((PEOPLE_TAG));
         when(modelMapper.map(any(), any())).thenReturn(PEOPLE_TAG);
 
@@ -148,7 +148,7 @@ class TagServiceImplTest {
 
     @Test
     void testGetAllTagShouldReturnTagsPageWhenFound() {
-        Pageable pageable = new Pageable(1, 1, null, null);
+        Pageable pageable = Pageable.unpaged();
         when(tagRepository.findBySpecification(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), pageable, 1));
         when(modelMapper.map(any(), any())).thenReturn(PEOPLE_TAG_DTO);
         PageImpl<TagDto> expectedPage = new PageImpl<>(List.of(PEOPLE_TAG_DTO), pageable, 1);

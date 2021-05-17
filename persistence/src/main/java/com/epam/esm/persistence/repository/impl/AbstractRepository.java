@@ -1,21 +1,20 @@
 package com.epam.esm.persistence.repository.impl;
 
-import com.epam.esm.persistence.entity.GiftCertificate;
 import com.epam.esm.persistence.exception.SortingException;
-import com.epam.esm.persistence.model.page.Page;
-import com.epam.esm.persistence.model.page.PageImpl;
-import com.epam.esm.persistence.model.page.Pageable;
 import com.epam.esm.persistence.model.specification.FindByIdInSpecification;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.QueryUtils;
+import org.springframework.data.mapping.PropertyReferenceException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
@@ -42,65 +41,44 @@ public abstract class AbstractRepository<T> {
         CriteriaBuilder cb = manager.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(getEntityClass());
         Root<T> giftCertificateFrom = query.from(getEntityClass());
-        Predicate restriction = specification.toPredicate(giftCertificateFrom, query, cb);
-        query.where(restriction);
+        query.where(specification.toPredicate(giftCertificateFrom, query, cb));
         TypedQuery<T> exec = getPagedQuery(pageable, cb, query, giftCertificateFrom);
+        Long lastPage = getLastPage(cb, specification);
         List<T> content = exec.getResultList();
-        Integer lastPage = getLastPage(cb, pageable, specification);
         return new PageImpl<>(content, pageable, lastPage);
     }
 
-    private Integer getLastPage(CriteriaBuilder cb, Pageable pageable, Specification<T> specification) {
-        if (!pageable.isPaged()) {
-            return 1;
-        } else {
-            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-            Root<T> certificateRoot = countQuery.from(getEntityClass());
-            Predicate restriction = specification.toPredicate(certificateRoot, countQuery, cb);
-            Expression<Long> count = cb.count(certificateRoot);
-            countQuery = countQuery.select(count);
-            countQuery = countQuery.where(restriction);
-            Long totalAmount = manager.createQuery(countQuery).getSingleResult();
-            Integer pageSize = pageable.getSize();
-            int amount = (int) (totalAmount / pageSize);
-            return totalAmount % pageSize == 0 ? amount : amount + 1;
-        }
+//    private Long getLastPage(CriteriaBuilder cb, Specification<T> specification) {
+//        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+//        countQuery.select(cb.count(countQuery.from(getEntityClass())));
+//        return manager.createQuery(countQuery).getSingleResult();
+//    }
+
+    private Long getLastPage(CriteriaBuilder cb, Specification<T> specification) {
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<T> root = countQuery.from(getEntityClass());
+        Predicate predicate = specification.toPredicate(root, countQuery, cb);
+        countQuery.where(predicate);
+        countQuery.select(cb.count(root));
+        Long singleResult = manager.createQuery(countQuery).getSingleResult();
+        return singleResult;
     }
 
     private TypedQuery<T> getPagedQuery(Pageable pageable, CriteriaBuilder cb, CriteriaQuery<T> query, Root<T> from) {
         if (pageable.isPaged()) {
-            int pageNumber = pageable.getPage();
-            int pageSize = pageable.getSize();
-            setSort(pageable, cb, query, from);
+            long pageNumber = pageable.getOffset();
+            int pageSize = pageable.getPageSize();
+            try {
+                query.orderBy((QueryUtils.toOrders(pageable.getSort(), from, cb)));
+            } catch (PropertyReferenceException e) {
+                throw new SortingException(e.getMessage());
+            }
             TypedQuery<T> exec = manager.createQuery(query);
-            int currentPage = pageNumber - 1;
-            exec.setFirstResult(currentPage * pageSize);
-            exec.setMaxResults(pageSize);
+            exec.setFirstResult(Math.toIntExact(pageNumber));
+            exec.setMaxResults((pageSize));
             return exec;
         }
         return manager.createQuery(query);
-    }
-
-    private void setSort(Pageable pageable, CriteriaBuilder cb, CriteriaQuery<T> query, Root<T> from) {
-        String sort = pageable.getSort();
-        if (sort == null) {
-            query.orderBy(cb.asc(from.get("id")));
-        } else {
-            Path<GiftCertificate> sortParam = getSortParam(from, sort);
-            if ("desc".equalsIgnoreCase(pageable.getSortDir())) {
-                query.orderBy(cb.desc(sortParam));
-            } else {
-                query.orderBy(cb.asc(sortParam));
-            }
-        }
-    }
-
-    private Path<GiftCertificate> getSortParam(Root<T> from, String sort) {
-        try {
-            return from.get(sort);
-        } catch (IllegalArgumentException e) {
-            throw new SortingException("sort value: " + sort + " is invalid");
-        }
     }
 
     protected abstract Class<T> getEntityClass();
