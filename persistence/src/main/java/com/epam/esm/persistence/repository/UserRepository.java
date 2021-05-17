@@ -1,20 +1,16 @@
 package com.epam.esm.persistence.repository;
 
 import com.epam.esm.persistence.entity.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
 
 /**
  * Interface for executing operations with order entity within data source
  */
-public interface UserRepository extends ReadOperationRepository<User> {
-
-    /**
-     * Method for returning page with users from data source
-     *
-     * @param pageable description of page retrieved
-     * @return page with found users
-     */
-    Page<User> findBySpecification(Specification<User> specification, Pageable pageable);
+@Repository
+@Transactional
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 }

@@ -158,13 +158,13 @@ class GiftCertificateServiceImplTest {
     void testUpdateCertificateShouldInvokeSaveCertificateTagsWhenTagsFound() throws ValidationException {
         when(modelMapper.map(DTO, GiftCertificate.class)).thenReturn(FIRST);
         when(modelMapper.map(FIRST, GiftCertificateTagDto.class)).thenReturn(DTO);
-        when(certificateRepository.update(any())).thenReturn(FIRST);
+        when(certificateRepository.patchUpdate(any())).thenReturn(FIRST);
         when(certificateRepository.findById(any())).thenReturn(Optional.of(FIRST));
 
         GiftCertificateTagDto actual = service.updateCertificate(DTO, CERTIFICATE_ID_DEFAULT_ID);
 
         assertThat(actual, is(DTO));
-        verify(certificateRepository, times(1)).update(FIRST);
+        verify(certificateRepository, times(1)).patchUpdate(FIRST);
         verify(modelMapper, times(1)).map(DTO, GiftCertificate.class);
     }
 
@@ -183,12 +183,12 @@ class GiftCertificateServiceImplTest {
         when(certificateRepository.findById(any())).thenReturn(Optional.of(FIRST));
         when(modelMapper.map(DTO, GiftCertificate.class)).thenReturn(FIRST);
         when(modelMapper.map(FIRST, GiftCertificateTagDto.class)).thenReturn(DTO);
-        when(certificateRepository.update(any())).thenReturn(FIRST);
+        when(certificateRepository.patchUpdate(any())).thenReturn(FIRST);
 
         GiftCertificateTagDto actual = service.updateCertificate(DTO, CERTIFICATE_ID_DEFAULT_ID);
 
         assertThat(actual, is(DTO));
-        verify(certificateRepository, times(1)).update(FIRST);
+        verify(certificateRepository, times(1)).patchUpdate(FIRST);
         verify(modelMapper, times(1)).map(DTO, GiftCertificate.class);
     }
 
@@ -201,7 +201,7 @@ class GiftCertificateServiceImplTest {
                 .setCertificateDescription("e")
                 .setTagNames(Set.of("ss"))
                 .build();
-        when(certificateRepository.findBySpecification(any(), any())).thenReturn(page);
+        when(certificateRepository.find(any(), any())).thenReturn(page);
         when(modelMapper.map(FIRST, GiftCertificateTagDto.class)).thenReturn(DTO);
 
         Page<GiftCertificateTagDto> actual = service.getBySpecification(params, Pageable.unpaged());
@@ -243,12 +243,12 @@ class GiftCertificateServiceImplTest {
         when(certificateRepository.findById(any())).thenReturn(Optional.of(FIRST));
         when(modelMapper.map(DTO, GiftCertificate.class)).thenReturn(FIRST);
         when(modelMapper.map(FIRST, GiftCertificateTagDto.class)).thenReturn(DTO);
-        when(certificateRepository.partialUpdate(any(), any())).thenReturn(FIRST);
+        when(certificateRepository.updateById(any(), any())).thenReturn(FIRST);
 
         GiftCertificateTagDto actual = service.patchUpdate(CERTIFICATE_ID_DEFAULT_ID, DTO);
 
         assertThat(actual, is(DTO));
-        verify(certificateRepository, times(1)).partialUpdate(CERTIFICATE_ID_DEFAULT_ID, FIRST);
+        verify(certificateRepository, times(1)).updateById(CERTIFICATE_ID_DEFAULT_ID, FIRST);
         verify(modelMapper, times(1)).map(DTO, GiftCertificate.class);
     }
 

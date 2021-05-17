@@ -73,7 +73,7 @@ public class TagServiceImpl implements TagService {
     private void deleteTagFromRepository(Long tagId) {
         Optional<Tag> tagOptional = tagRepository.findById(tagId);
         tagOptional.ifPresentOrElse(
-                tag -> tagRepository.delete(tagId),
+                tag -> tagRepository.deleteById(tagId),
                 () -> {throw new EntityNotFoundException(String.format(WRONG_TAG, tagId));}
         );
     }
@@ -87,7 +87,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Page<TagDto> getAll(Pageable pageable) {
-        Page<Tag> tagPage = tagRepository.findBySpecification(new FindAllSpecification<>(), pageable);
+        Page<Tag> tagPage = tagRepository.findAll(new FindAllSpecification<>(), pageable);
         Page<TagDto> page = tagPage.map(order -> modelMapper.map(order, TagDto.class));
         Integer lastPage = page.getTotalPages();
         Integer currentPage = page.getNumber() + 1;
@@ -107,7 +107,7 @@ public class TagServiceImpl implements TagService {
         }
         return result;
     }
-
+    //todo modify with save all
     private void addSavedTag(Set<Tag> result, Tag tag) {
         Long tagId = tag.getId();
         String name = tag.getName();
@@ -132,7 +132,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private Optional<Tag> getTagFromRepo(String name) {
-        Page<Tag> tagPage = tagRepository.findBySpecification(new TagNameSpecification(name), Pageable.unpaged());
+        Page<Tag> tagPage = tagRepository.findAll(new TagNameSpecification(name), Pageable.unpaged());
         return Optional.ofNullable(DataAccessUtils.singleResult(tagPage.getContent()));
     }
 

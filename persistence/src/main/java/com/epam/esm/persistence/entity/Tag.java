@@ -8,8 +8,10 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tags")
@@ -21,6 +23,8 @@ public class Tag {
     private Long id;
     @Column(name = "name")
     private String name;
+    @ManyToMany(mappedBy = "tags")
+    private Set<GiftCertificate> certificates;
 
     public Tag(Long id, String name) {
         this.id = id;
@@ -44,6 +48,14 @@ public class Tag {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<GiftCertificate> getCertificates() {
+        return certificates;
+    }
+
+    public void setCertificates(Set<GiftCertificate> certificates) {
+        this.certificates = certificates;
     }
 
     @Override

@@ -197,7 +197,7 @@ class GiftCertificateRepositoryImplTest {
     @Test
     @Rollback
     void testUpdateShouldReturnUpdatedObjectsAmountWhenUpdated() {
-        GiftCertificate actual = repository.update(FOR_UPDATING);
+        GiftCertificate actual = repository.patchUpdate(FOR_UPDATING);
 
         assertThat(actual, is(FOR_UPDATING));
     }
@@ -206,7 +206,7 @@ class GiftCertificateRepositoryImplTest {
     @Rollback
     void testFindBySpecificationShouldReturnListOf3Certificates() {
         List<Long> ids = List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L);
-        Page<GiftCertificate> page = repository.findBySpecification(new FindByIdInSpecification<>(ids), FIRST_THREE_CERTIFICATES_PAGEABLE);
+        Page<GiftCertificate> page = repository.find(new FindByIdInSpecification<>(ids), FIRST_THREE_CERTIFICATES_PAGEABLE);
 
         assertThat(page.getContent(), is(EXPECTED_PAGE_3_VALUES.getContent()));
     }
@@ -214,7 +214,7 @@ class GiftCertificateRepositoryImplTest {
     @Test
     @Rollback
     void testFindBySpecificationShouldReturnListOfAllCertificates() {
-        Page<GiftCertificate> page = repository.findBySpecification(new FindAllActiveCertificatesSpecification(), ALL_CERTIFICATES_PAGEABLE);
+        Page<GiftCertificate> page = repository.find(new FindAllActiveCertificatesSpecification(), ALL_CERTIFICATES_PAGEABLE);
 
         assertThat(page.getContent(), is(EXPECTED_PAGE_ALL_ACTIVE.getContent()));
     }

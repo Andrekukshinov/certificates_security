@@ -68,7 +68,7 @@ class TagServiceImplTest {
 
     @Test
     void testSaveTagShouldVerifyRepositoryCallWhenObjectValid() {
-        when(tagRepository.findBySpecification(any(), any())).thenReturn(new PageImpl<>(new ArrayList<>(), Pageable.unpaged(), 1));
+        when(tagRepository.find(any(), any())).thenReturn(new PageImpl<>(new ArrayList<>(), Pageable.unpaged(), 1));
         when(tagRepository.save(any())).thenReturn((PEOPLE_TAG));
         when(modelMapper.map(PEOPLE_TAG_DTO, Tag.class)).thenReturn((PEOPLE_TAG));
         when(modelMapper.map(PEOPLE_TAG, TagDto.class)).thenReturn((PEOPLE_TAG_DTO));
@@ -77,20 +77,20 @@ class TagServiceImplTest {
 
         assertThat(saved, is(PEOPLE_TAG_DTO));
         verify(tagRepository, times(1)).save(any());
-        verify(tagRepository, times(1)).findBySpecification(any(), any());
+        verify(tagRepository, times(1)).find(any(), any());
         verify(modelMapper, times(2)).map(any(), any());
     }
 
     @Test
     void testSaveTagShouldEntityAlreadyExistsExceptionWhenTagExists() {
-        when(tagRepository.findBySpecification(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), Pageable.unpaged(), 1));
+        when(tagRepository.find(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), Pageable.unpaged(), 1));
         when(modelMapper.map(any(), any())).thenReturn((PEOPLE_TAG));
         when(modelMapper.map(any(), any())).thenReturn(PEOPLE_TAG);
 
         assertThrows(EntityAlreadyExistsException.class, () -> service.save(PEOPLE_TAG_DTO));
 
         verify(tagRepository, times(0)).save(any());
-        verify(tagRepository, times(1)).findBySpecification(any(), any());
+        verify(tagRepository, times(1)).find(any(), any());
         verify(modelMapper, times(1)).map(any(), any());
     }
 
@@ -149,14 +149,14 @@ class TagServiceImplTest {
     @Test
     void testGetAllTagShouldReturnTagsPageWhenFound() {
         Pageable pageable = Pageable.unpaged();
-        when(tagRepository.findBySpecification(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), pageable, 1));
+        when(tagRepository.find(any(), any())).thenReturn(new PageImpl<>(List.of(PEOPLE_TAG), pageable, 1));
         when(modelMapper.map(any(), any())).thenReturn(PEOPLE_TAG_DTO);
         PageImpl<TagDto> expectedPage = new PageImpl<>(List.of(PEOPLE_TAG_DTO), pageable, 1);
 
         Page<TagDto> tagDtoPage = service.getAll(pageable);
 
         assertThat(tagDtoPage, is(expectedPage));
-        verify(tagRepository, times(1)).findBySpecification(any(), any());
+        verify(tagRepository, times(1)).find(any(), any());
         verify(modelMapper, times(1)).map(any(), any());
     }
 
@@ -178,8 +178,8 @@ class TagServiceImplTest {
     void testSaveAllShouldReturnSetTagsWhenByNameNotFound() throws ValidationException {
         Page<Tag> peoplePage = new PageImpl<>(List.of(PEOPLE_TAG), Pageable.unpaged(), 1);
         Page<Tag> emptyPage = new PageImpl<>(List.of(), Pageable.unpaged(), 0);
-        when(tagRepository.findBySpecification(new TagNameSpecification("PEOPLE"), Pageable.unpaged())).thenReturn(peoplePage);
-        when(tagRepository.findBySpecification(new TagNameSpecification("GYM"), Pageable.unpaged())).thenReturn(emptyPage);
+        when(tagRepository.find(new TagNameSpecification("PEOPLE"), Pageable.unpaged())).thenReturn(peoplePage);
+        when(tagRepository.find(new TagNameSpecification("GYM"), Pageable.unpaged())).thenReturn(emptyPage);
         when(tagRepository.save(NO_ID_GYM_TAG)).thenReturn(GYM_TAG);
         when(modelMapper.map(any(), any())).thenReturn(PEOPLE_TAG_DTO);
 
@@ -187,7 +187,7 @@ class TagServiceImplTest {
 
         assertThat(actual, is(Set.of(PEOPLE_TAG, GYM_TAG)));
         verify(tagRepository, times(0)).findById(any());
-        verify(tagRepository, times(2)).findBySpecification(any(), any());
+        verify(tagRepository, times(2)).find(any(), any());
         verify(tagRepository, times(1)).save(any());
         verify(validator, times(2)).validate(any());
     }

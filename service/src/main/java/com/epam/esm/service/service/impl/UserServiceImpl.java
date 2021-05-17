@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserInfoDto> getAll(Pageable pageable) {
-        Page<User> userPage = userRepository.findBySpecification(new FindAllSpecification<>(), pageable);
+        Page<User> userPage = userRepository.findAll(new FindAllSpecification<>(), pageable);
         Page<UserInfoDto> page = userPage.map(order -> mapper.map(order, UserInfoDto.class));
         Integer lastPage = page.getTotalPages();
         Integer currentPage = page.getNumber() + 1;

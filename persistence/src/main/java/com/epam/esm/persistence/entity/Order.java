@@ -30,16 +30,16 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "create_date")
+    @Column(name = "create_date", updatable = false)
     private LocalDateTime createDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @Column(name = "total_price")
+    @Column(name = "total_price", updatable = false)
     private BigDecimal totalPrice;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", updatable = false)
     private User user;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST )
     private List<OrderCertificate> orderCertificates;
 
     public Order(Long id, LocalDateTime createDate, OrderStatus status, BigDecimal totalPrice, User user, List<OrderCertificate> orderCertificates) {

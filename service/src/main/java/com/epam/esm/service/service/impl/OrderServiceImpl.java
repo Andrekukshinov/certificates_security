@@ -136,7 +136,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderCertificatesDto getUserOrderById(Long userId, Long orderId) {
         Specification<Order> specification = new OrderByUserIdSpecification(userId).and( new FindByIdInSpecification<>(List.of(orderId)));
-        Order nullableValue = DataAccessUtils.singleResult(repository.findBySpecification(specification, Pageable.unpaged()).getContent());
+        Order nullableValue = DataAccessUtils.singleResult(repository.findAll(specification, Pageable.unpaged()).getContent());
         Optional<Order> orderOptional = Optional.ofNullable(nullableValue);
         Order order = orderOptional.orElseThrow(() -> new EntityNotFoundException(String.format("order (id=%s), of user (id=%s), bot found", orderId, userId)));
         return mapper.map(order, OrderCertificatesDto.class);
@@ -145,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderDetailsDto> getAllUserOrders(Long userId, Pageable pageable) {
         Specification<Order> getAllSpec = new FindUserOrdersSpecification(userId);
-        Page<Order> ordersPage = repository.findBySpecification(getAllSpec, pageable);
+        Page<Order> ordersPage = repository.findAll(getAllSpec, pageable);
         Page<OrderDetailsDto> page = ordersPage.map(order -> mapper.map(order, OrderDetailsDto.class));
         Integer lastPage = page.getTotalPages();
         Integer currentPage = page.getNumber() + 1;

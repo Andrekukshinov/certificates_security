@@ -64,7 +64,7 @@ class UserServiceImplTest {
         Page<User> page = new PageImpl<>(List.of(USER), Pageable.unpaged(), 1);
         Page<UserInfoDto> expected = new PageImpl<>(List.of(USER_DTO), Pageable.unpaged(), 1);
         when(modelMapper.map(any(), any())).thenReturn(USER_DTO);
-        when(userRepository.findBySpecification(any(), any())).thenReturn(page);
+        when(userRepository.find(any(), any())).thenReturn(page);
 
         Page<UserInfoDto> actual = orderService.getAll(Pageable.unpaged());
 

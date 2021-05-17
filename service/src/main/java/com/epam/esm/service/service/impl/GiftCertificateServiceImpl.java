@@ -19,6 +19,7 @@ import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.service.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -63,7 +64,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateTagDto getCertificateById(Long id) {
-        Optional<GiftCertificate> certificateOptional = certificateRepository.findById(id);
+        Optional<GiftCertificate> certificateOptional = getGiftCertificateOptional(id);
         GiftCertificate certificate = certificateOptional
                 .orElseThrow(() -> new EntityNotFoundException(String.format(WRONG_CERTIFICATE, id)));
         return modelMapper.map(certificate, GiftCertificateTagDto.class);
@@ -72,7 +73,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateTagDto updateCertificate(GiftCertificateTagDto certificateDto, Long updateId) throws ValidationException {
-        certificateRepository.findById(updateId)
+        getGiftCertificateOptional(updateId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(WRONG_CERTIFICATE, updateId)));
         certificateDto.setId(updateId);
         GiftCertificate certificate = modelMapper.map(certificateDto, GiftCertificate.class);
@@ -94,9 +95,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public void deleteCertificate(Long id) {
-        Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.findById(id);
+        Optional<GiftCertificate> optionalGiftCertificate = getGiftCertificateOptional(id);
         optionalGiftCertificate.ifPresentOrElse(
-                giftCertificate -> certificateRepository.delete(id),
+                giftCertificate -> certificateRepository.deleteById(id),
                 () -> {
                     throw new EntityNotFoundException("certificate with id " + id + " does not exist");
                 }
@@ -112,7 +113,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public Page<GiftCertificate> getCertificatesBySpecification(RequestParams params, Pageable pageable) {
         Specification<GiftCertificate> specification = getGiftCertificateSpecification(params);
-        Page<GiftCertificate> page = certificateRepository.findBySpecification(specification, pageable);
+        Page<GiftCertificate> page = certificateRepository.findAll(specification, pageable);
         Integer lastPage = page.getTotalPages();
         Integer currentPage = page.getNumber() + 1;
         //todo #1
@@ -125,12 +126,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateTagDto patchUpdate(Long certificateId, GiftCertificateTagDto toBeUpdated) throws ValidationException {
-        certificateRepository.findById(certificateId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(WRONG_CERTIFICATE, certificateId)));
+        getGiftCertificateOptional(certificateId);
         GiftCertificate giftCertificate = modelMapper.map(toBeUpdated, GiftCertificate.class);
         saveCertificateTags(giftCertificate);
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        GiftCertificate updated = certificateRepository.partialUpdate(certificateId, giftCertificate);
+        giftCertificate.setId(certificateId);
+        GiftCertificate updated = certificateRepository.update(giftCertificate);
         return modelMapper.map(updated, GiftCertificateTagDto.class);
     }
 
@@ -165,6 +166,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .stream()
                 .reduce(Specification::and)
                 .orElse(new FindAllActiveCertificatesSpecification());
+    }
+
+    private Optional<GiftCertificate> getGiftCertificateOptional(Long id) {
+        Specification<GiftCertificate> activeCertificates
+                = new CertificatesStatusSpecification(GiftCertificateStatus.ACTIVE);
+        Specification<GiftCertificate> specification = activeCertificates.and(new FindByIdInSpecification<>(List.of(id)));
+        GiftCertificate nullable = DataAccessUtils.singleResult(certificateRepository.findAll(specification));
+        return Optional.ofNullable(nullable);
     }
 
 }
