@@ -12,7 +12,6 @@ import com.epam.esm.persistence.model.specification.CertificatesStatusSpecificat
 import com.epam.esm.persistence.model.specification.FindAllActiveCertificatesSpecification;
 import com.epam.esm.persistence.model.specification.FindByIdInSpecification;
 import com.epam.esm.persistence.model.specification.GiftCertificateTagNamesSpecification;
-import com.epam.esm.persistence.model.specification.Specification;
 import com.epam.esm.persistence.repository.GiftCertificateRepository;
 import com.epam.esm.service.dto.certificate.GiftCertificateTagDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
@@ -23,6 +22,7 @@ import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.service.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

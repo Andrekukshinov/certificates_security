@@ -90,7 +90,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Page<TagDto> getAll(Pageable pageable) {
-        Page<Tag> tagPage = tagRepository.find(new FindAllSpecification<>(), pageable);
+        Page<Tag> tagPage = tagRepository.findBySpecification(new FindAllSpecification<>(), pageable);
         List<TagDto> contentDto = tagPage.getContent().stream()
                 .map(order -> modelMapper.map(order, TagDto.class))
                 .collect(Collectors.toList());
@@ -138,7 +138,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private Optional<Tag> getTagFromRepo(String name) {
-        Page<Tag> tagPage = tagRepository.find(new TagNameSpecification(name), Pageable.unpaged());
+        Page<Tag> tagPage = tagRepository.findBySpecification(new TagNameSpecification(name), Pageable.unpaged());
         return Optional.ofNullable(DataAccessUtils.singleResult(tagPage.getContent()));
     }
 

@@ -3,7 +3,7 @@ package com.epam.esm.persistence.repository;
 import com.epam.esm.persistence.entity.Tag;
 import com.epam.esm.persistence.model.page.Page;
 import com.epam.esm.persistence.model.page.Pageable;
-import com.epam.esm.persistence.model.specification.Specification;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Optional;
 
@@ -34,6 +34,6 @@ public interface TagRepository extends DeleteRepository<Tag>, CreateRepository<T
      * @param pageable      description of page retrieved
      * @return page with found orders
      */
-    Page<Tag> find(Specification<Tag> specification, Pageable pageable);
+    Page<Tag> findBySpecification(Specification<Tag> specification, Pageable pageable);
 
 }

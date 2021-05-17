@@ -19,7 +19,7 @@ public class PageHelperImpl implements PageHelper {
     }
 
     public Map<String, String> getThisPageParamMap(Map<String, String> requestParams, Integer currentPage) {
-        return getPageParamMap(requestParams, currentPage + 1);
+        return getPageParamMap(requestParams, currentPage);
     }
 
     public Map<String, String> getNextPageParamMap(Map<String, String> requestParams, Integer nextPage) {

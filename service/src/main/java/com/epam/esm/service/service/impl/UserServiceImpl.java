@@ -4,6 +4,7 @@ import com.epam.esm.persistence.entity.User;
 import com.epam.esm.persistence.model.page.Page;
 import com.epam.esm.persistence.model.page.PageImpl;
 import com.epam.esm.persistence.model.page.Pageable;
+import com.epam.esm.persistence.model.specification.FindAllSpecification;
 import com.epam.esm.persistence.repository.UserRepository;
 import com.epam.esm.service.dto.user.UserInfoDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserInfoDto> getAll(Pageable pageable) {
-        Page<User> userPage = userRepository.findAll(pageable);
+        Page<User> userPage = userRepository.findBySpecification(new FindAllSpecification<>(), pageable);
         List<UserInfoDto> contentDto = userPage.getContent().stream()
                 .map(order -> mapper.map(order, UserInfoDto.class))
                 .collect(Collectors.toList());

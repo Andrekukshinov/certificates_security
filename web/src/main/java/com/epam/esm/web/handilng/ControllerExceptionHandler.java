@@ -153,4 +153,6 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 }
+//todo fix all classes (make them work with spring pageable +
+// migrate to spring data + add abstract repo for all common methods
 
