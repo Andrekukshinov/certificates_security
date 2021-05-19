@@ -28,7 +28,7 @@ public class GiftCertificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "create_date", updatable = false)
+    @Column(name = "create_date")
     private LocalDateTime createDate;
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
@@ -38,7 +38,7 @@ public class GiftCertificate {
     @Enumerated(EnumType.STRING)
     private GiftCertificateStatus status;
     private Integer duration;
-    @ManyToMany(cascade = CascadeType.DETACH)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "tags_gift_certificates",
             joinColumns = {

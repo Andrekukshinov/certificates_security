@@ -2,15 +2,18 @@ package com.epam.esm.service.service.impl;
 
 import com.epam.esm.persistence.entity.User;
 import com.epam.esm.persistence.model.specification.FindAllSpecification;
+import com.epam.esm.persistence.model.specification.FindUserByUsernameSpecification;
 import com.epam.esm.persistence.repository.UserRepository;
 import com.epam.esm.service.dto.user.UserInfoDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
-import com.epam.esm.service.exception.InvalidPageException;
 import com.epam.esm.service.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -38,12 +41,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserInfoDto> getAll(Pageable pageable) {
         Page<User> userPage = userRepository.findAll(new FindAllSpecification<>(), pageable);
-        Page<UserInfoDto> page = userPage.map(order -> mapper.map(order, UserInfoDto.class));
-        Integer lastPage = page.getTotalPages();
-        Integer currentPage = page.getNumber() + 1;
-        if (lastPage < currentPage){
-            throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
-        }
-        return page;
+        return userPage.map(order -> mapper.map(order, UserInfoDto.class));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return DataAccessUtils.singleResult(userRepository.findAll(new FindUserByUsernameSpecification(username)));
     }
 }

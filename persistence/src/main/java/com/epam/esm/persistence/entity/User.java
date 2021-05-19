@@ -1,34 +1,49 @@
 package com.epam.esm.persistence.entity;
 
 import com.epam.esm.persistence.audit.listeners.EntityListener;
+import com.epam.esm.persistence.entity.enums.Role;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
 @Table(name = "users")
 @EntityListeners(EntityListener.class)
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String password;
     private String email;
-    private String nickname;
+    private String username;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     public User() {
     }
 
-    public User(Long id, String password, String email, String nickname) {
+    public User(Long id, String password, String email, String username, Role role) {
         this.id = id;
         this.password = password;
         this.email = email;
-        this.nickname = nickname;
+        this.username = username;
+        this.role = role;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.getAuthorities();
     }
 
     public Long getId() {
@@ -39,14 +54,6 @@ public class User {
         this.id = id;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -55,12 +62,49 @@ public class User {
         this.email = email;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getPassword() {
+        return password;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override
@@ -69,7 +113,8 @@ public class User {
                 "id=" + id +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
-                ", nickname='" + nickname + '\'' +
+                ", username='" + username + '\'' +
+                ", role=" + role +
                 '}';
     }
 
@@ -82,11 +127,11 @@ public class User {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(getId(), user.getId()) && Objects.equals(getPassword(), user.getPassword()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getNickname(), user.getNickname());
+        return Objects.equals(getId(), user.getId()) && Objects.equals(getPassword(), user.getPassword()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getUsername(), user.getUsername()) && getRole() == user.getRole();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getPassword(), getEmail(), getNickname());
+        return Objects.hash(getId(), getPassword(), getEmail(), getUsername(), getRole());
     }
 }

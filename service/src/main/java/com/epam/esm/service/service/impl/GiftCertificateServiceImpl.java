@@ -23,6 +23,9 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class GiftCertificateServiceImpl implements GiftCertificateService {
+public class GiftCertificateServiceImpl implements GiftCertificateService{
 
     private static final String WRONG_CERTIFICATE = "certificate with id = %d not found";
 
@@ -113,14 +116,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public Page<GiftCertificate> getCertificatesBySpecification(RequestParams params, Pageable pageable) {
         Specification<GiftCertificate> specification = getGiftCertificateSpecification(params);
-        Page<GiftCertificate> page = certificateRepository.findAll(specification, pageable);
-        Integer lastPage = page.getTotalPages();
-        Integer currentPage = page.getNumber() + 1;
-        //todo #1
-        if (lastPage < currentPage){
-            throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
-        }
-        return page;
+        return certificateRepository.findAll(specification, pageable);
     }
 
     @Override
@@ -175,5 +171,4 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificate nullable = DataAccessUtils.singleResult(certificateRepository.findAll(specification));
         return Optional.ofNullable(nullable);
     }
-
 }

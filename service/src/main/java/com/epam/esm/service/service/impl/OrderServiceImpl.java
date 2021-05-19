@@ -146,12 +146,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDetailsDto> getAllUserOrders(Long userId, Pageable pageable) {
         Specification<Order> getAllSpec = new FindUserOrdersSpecification(userId);
         Page<Order> ordersPage = repository.findAll(getAllSpec, pageable);
-        Page<OrderDetailsDto> page = ordersPage.map(order -> mapper.map(order, OrderDetailsDto.class));
-        Integer lastPage = page.getTotalPages();
-        Integer currentPage = page.getNumber() + 1;
-        if (lastPage < currentPage){
-            throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
-        }
-        return page;
+
+        return ordersPage.map(order -> mapper.map(order, OrderDetailsDto.class));
     }
 }

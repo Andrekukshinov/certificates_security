@@ -88,13 +88,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public Page<TagDto> getAll(Pageable pageable) {
         Page<Tag> tagPage = tagRepository.findAll(new FindAllSpecification<>(), pageable);
-        Page<TagDto> page = tagPage.map(order -> modelMapper.map(order, TagDto.class));
-        Integer lastPage = page.getTotalPages();
-        Integer currentPage = page.getNumber() + 1;
-        if (lastPage < currentPage){
-            throw new InvalidPageException("current page: " + currentPage + " cannot be grater than last page: " + lastPage);
-        }
-        return page;
+        return tagPage.map(order -> modelMapper.map(order, TagDto.class));
     }
 
     @Override

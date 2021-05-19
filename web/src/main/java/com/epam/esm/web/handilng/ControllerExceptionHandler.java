@@ -163,4 +163,8 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 // migrate to spring data + add abstract repo for all common methods
 // create separate status codes 4 the same exception types with different messages
 //  ask what to do when last page is 0(no content found for the page(#1)) and if cur page > last page
+// FIX PUT & PATCH METHODS!!!!!!!!!!!!(WITH JPA)
 
+//todo for 20.05:
+// 1) move to properties file secret key!
+// 2) add login sign up functionality
