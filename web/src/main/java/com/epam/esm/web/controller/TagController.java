@@ -1,5 +1,6 @@
 package com.epam.esm.web.controller;
 
+import com.epam.esm.persistence.entity.Tag;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.service.TagService;
 import com.epam.esm.service.validation.SaveGroup;

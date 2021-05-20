@@ -55,5 +55,4 @@ public interface TagRepository extends JpaRepository<Tag, Long>, JpaSpecificatio
             "LIMIT 0,1"), nativeQuery = true)
     Tag getTopUserMostPopularTag();
 
-
 }

@@ -12,8 +12,8 @@ import com.epam.esm.persistence.model.specification.GiftCertificateTagNamesSpeci
 import com.epam.esm.persistence.repository.GiftCertificateRepository;
 import com.epam.esm.service.dto.certificate.GiftCertificateTagDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
-import com.epam.esm.service.exception.InvalidPageException;
 import com.epam.esm.service.exception.ValidationException;
+import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.model.RequestParams;
 import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.service.TagService;
@@ -23,9 +23,6 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,26 +40,26 @@ public class GiftCertificateServiceImpl implements GiftCertificateService{
 
     private final GiftCertificateRepository certificateRepository;
     private final TagService tagService;
-    private final ModelMapper modelMapper;
+    private final GiftCertificateMapper certificateMapper;
 
 
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateRepository certificateRepository, TagService tagService, ModelMapper modelMapper) {
+    public GiftCertificateServiceImpl(GiftCertificateRepository certificateRepository, TagService tagService, GiftCertificateMapper certificateMapper) {
         this.certificateRepository = certificateRepository;
         this.tagService = tagService;
-        this.modelMapper = modelMapper;
+        this.certificateMapper = certificateMapper;
     }
 
     @Transactional
     @Override
     public GiftCertificateTagDto save(GiftCertificateTagDto certificateDto) throws ValidationException {
-        GiftCertificate certificate = modelMapper.map(certificateDto, GiftCertificate.class);
+        GiftCertificate certificate = certificateMapper.map(certificateDto);
         saveCertificateTags(certificate);
         certificate.setCreateDate(LocalDateTime.now());
         certificate.setLastUpdateDate(LocalDateTime.now());
         certificate.setStatus(GiftCertificateStatus.ACTIVE);
         GiftCertificate saved = certificateRepository.save(certificate);
-        return modelMapper.map(saved, GiftCertificateTagDto.class);
+        return certificateMapper.map(saved);
     }
 
     @Override
@@ -70,21 +67,24 @@ public class GiftCertificateServiceImpl implements GiftCertificateService{
         Optional<GiftCertificate> certificateOptional = getGiftCertificateOptional(id);
         GiftCertificate certificate = certificateOptional
                 .orElseThrow(() -> new EntityNotFoundException(String.format(WRONG_CERTIFICATE, id)));
-        return modelMapper.map(certificate, GiftCertificateTagDto.class);
+        return certificateMapper.map(certificate);
     }
 
     @Override
     @Transactional
     public GiftCertificateTagDto updateCertificate(GiftCertificateTagDto certificateDto, Long updateId) throws ValidationException {
-        getGiftCertificateOptional(updateId)
+        return updateById(certificateDto, updateId);
+    }
+
+    private GiftCertificateTagDto updateById(GiftCertificateTagDto certificateDto, Long updateId) throws ValidationException {
+        GiftCertificate found = getGiftCertificateOptional(updateId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(WRONG_CERTIFICATE, updateId)));
-        certificateDto.setId(updateId);
-        GiftCertificate certificate = modelMapper.map(certificateDto, GiftCertificate.class);
-        certificate.setStatus(GiftCertificateStatus.ACTIVE);
-        certificate.setLastUpdateDate(LocalDateTime.now());
-        saveCertificateTags(certificate);
-        GiftCertificate updated = certificateRepository.update(certificate);
-        return modelMapper.map(updated, GiftCertificateTagDto.class);
+        certificateMapper.map(certificateDto, found);
+        found.setStatus(GiftCertificateStatus.ACTIVE);
+        found.setLastUpdateDate(LocalDateTime.now());
+        GiftCertificate updated = certificateRepository.save(found);
+        saveCertificateTags(found);
+        return certificateMapper.map(updated);
     }
 
     private void saveCertificateTags(GiftCertificate certificate) throws ValidationException {
@@ -110,7 +110,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService{
     @Override
     public Page<GiftCertificateTagDto> getBySpecification(RequestParams params, Pageable pageable) {
         Page<GiftCertificate> page = getCertificatesBySpecification(params, pageable);
-        return page.map(order -> modelMapper.map(order, GiftCertificateTagDto.class));
+        return page.map(certificateMapper::map);
     }
 
     @Override
@@ -122,13 +122,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService{
     @Override
     @Transactional
     public GiftCertificateTagDto patchUpdate(Long certificateId, GiftCertificateTagDto toBeUpdated) throws ValidationException {
-        getGiftCertificateOptional(certificateId);
-        GiftCertificate giftCertificate = modelMapper.map(toBeUpdated, GiftCertificate.class);
-        saveCertificateTags(giftCertificate);
-        giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        giftCertificate.setId(certificateId);
-        GiftCertificate updated = certificateRepository.update(giftCertificate);
-        return modelMapper.map(updated, GiftCertificateTagDto.class);
+        return updateById(toBeUpdated, certificateId);
     }
 
     private Specification<GiftCertificate> getGiftCertificateSpecification(RequestParams params) {

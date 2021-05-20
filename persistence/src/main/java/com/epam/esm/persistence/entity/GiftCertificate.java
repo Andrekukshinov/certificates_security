@@ -38,7 +38,7 @@ public class GiftCertificate {
     @Enumerated(EnumType.STRING)
     private GiftCertificateStatus status;
     private Integer duration;
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany()
     @JoinTable(
             name = "tags_gift_certificates",
             joinColumns = {

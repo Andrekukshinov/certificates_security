@@ -6,6 +6,7 @@ import com.epam.esm.persistence.model.specification.FindUserByUsernameSpecificat
 import com.epam.esm.persistence.repository.UserRepository;
 import com.epam.esm.service.dto.user.UserInfoDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
+import com.epam.esm.service.mapper.UserMapper;
 import com.epam.esm.service.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,10 @@ public class UserServiceImpl implements UserService {
     private static final String NOT_FOUND_BY_ID = "user with id = %s not found";
     private static final String NOT_FOUND_BY_NAME = "user with name = %s not found";
     private final UserRepository userRepository;
-    private final ModelMapper mapper;
+    private final UserMapper mapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ModelMapper mapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper mapper) {
         this.userRepository = userRepository;
         this.mapper = mapper;
     }
@@ -36,20 +37,20 @@ public class UserServiceImpl implements UserService {
     public UserInfoDto getById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         User user = optionalUser.orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND_BY_ID, id)));
-        return mapper.map(user, UserInfoDto.class);
+        return mapper.map(user);
     }
 
     @Override
     public Page<UserInfoDto> getAll(Pageable pageable) {
         Page<User> userPage = userRepository.findAll(new FindAllSpecification<>(), pageable);
-        return userPage.map(order -> mapper.map(order, UserInfoDto.class));
+        return userPage.map(mapper::map);
     }
 
     @Override
     public Optional<UserInfoDto> findByUsername(String username) {
         UserInfoDto result = mapper.map(userRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND_BY_NAME, username))), UserInfoDto.class);
+                .orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND_BY_NAME, username))));
         return Optional.of(result);
     }
 

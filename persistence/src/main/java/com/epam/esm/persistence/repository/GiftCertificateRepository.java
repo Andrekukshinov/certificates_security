@@ -19,15 +19,6 @@ import javax.transaction.Transactional;
 @Repository
 @Transactional
 public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long>, JpaSpecificationExecutor<GiftCertificate> {
-    /**
-     * Method for updating certificate entity in the data source
-     *
-     * @param certificate object to be updated
-     * @return amount of updated rows
-     */
-    @Query("update GiftCertificate gc set gc =:certificate where gc.id=:#{certificate.id}")
-    GiftCertificate update(@Param("certificate") GiftCertificate certificate);
-
     @Modifying
     @Override
     @Query(value = ("UPDATE gift_certificates AS gc SET gc.status ='DELETED' WHERE gc.id =:id"), nativeQuery = true)

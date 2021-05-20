@@ -9,11 +9,10 @@ import com.epam.esm.service.exception.DeleteTagInUseException;
 import com.epam.esm.service.exception.EntityAlreadyExistsException;
 import com.epam.esm.service.exception.EntityNotFoundException;
 import com.epam.esm.service.exception.InvalidEntityException;
-import com.epam.esm.service.exception.InvalidPageException;
 import com.epam.esm.service.exception.ValidationException;
+import com.epam.esm.service.mapper.TagMapper;
 import com.epam.esm.service.service.TagService;
 import com.epam.esm.service.validation.Validator;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
@@ -33,11 +32,11 @@ public class TagServiceImpl implements TagService {
     private static final String TAG_INVOLVED_MESSAGE = "Tag with id = %s is involved with certificates!";
 
     private final TagRepository tagRepository;
-    private final ModelMapper modelMapper;
+    private final TagMapper modelMapper;
     private final Validator<Tag> validator;
 
     @Autowired
-    public TagServiceImpl(TagRepository tagRepository, ModelMapper modelMapper, Validator<Tag> validator) {
+    public TagServiceImpl(TagRepository tagRepository, TagMapper modelMapper, Validator<Tag> validator) {
         this.tagRepository = tagRepository;
 
         this.modelMapper = modelMapper;
@@ -46,14 +45,14 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto save(TagDto tagDto) {
-        Tag tag = modelMapper.map(tagDto, Tag.class);
+        Tag tag = modelMapper.map(tagDto);
         String name = tag.getName();
         Optional<Tag> tagOptional = getTagFromRepo(name);
         tagOptional.ifPresent((ignored) -> {
             throw new EntityAlreadyExistsException(String.format(ALREADY_EXISTS_PATTERN, name));
         });
         Tag saved = tagRepository.save(tag);
-        return modelMapper.map(saved, TagDto.class);
+        return modelMapper.map(saved);
     }
 
     @Override
@@ -82,13 +81,13 @@ public class TagServiceImpl implements TagService {
     public TagDto getTag(Long id) {
         Optional<Tag> tagOptional = tagRepository.findById(id);
         Tag tag = tagOptional.orElseThrow(() -> new EntityNotFoundException(String.format(WRONG_TAG, id)));
-        return modelMapper.map(tag, TagDto.class);
+        return modelMapper.map(tag);
     }
 
     @Override
     public Page<TagDto> getAll(Pageable pageable) {
         Page<Tag> tagPage = tagRepository.findAll(new FindAllSpecification<>(), pageable);
-        return tagPage.map(order -> modelMapper.map(order, TagDto.class));
+        return tagPage.map(order -> modelMapper.map(order));
     }
 
     @Override
@@ -125,13 +124,13 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-    private Optional<Tag> getTagFromRepo(String name) {
-        Page<Tag> tagPage = tagRepository.findAll(new TagNameSpecification(name), Pageable.unpaged());
-        return Optional.ofNullable(DataAccessUtils.singleResult(tagPage.getContent()));
+    public Optional<Tag> getTagFromRepo(String name) {
+    Page<Tag> tagPage = tagRepository.findAll(new TagNameSpecification(name), Pageable.unpaged());
+    return Optional.ofNullable(DataAccessUtils.singleResult(tagPage.getContent()));
     }
 
     @Override
     public TagDto getTopUserMostPopularTag() {
-        return modelMapper.map(tagRepository.getTopUserMostPopularTag(), TagDto.class);
+        return modelMapper.map(tagRepository.getTopUserMostPopularTag());
     }
 }
