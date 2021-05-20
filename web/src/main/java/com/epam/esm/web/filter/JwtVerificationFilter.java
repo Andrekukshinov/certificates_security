@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.util.Set;
 
 @Component
-public class JwtVerificationFilter extends OncePerRequestFilter {
+public class JwtVerificationFilter extends OncePerRequestFilter  {
     private final JwtManager jwtManager;
 
 

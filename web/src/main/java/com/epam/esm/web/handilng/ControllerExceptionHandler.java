@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,6 +41,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     private static final int ENTITY_EXISTS_EXCEPTION = 409_01;
     private static final int NOT_FOUND_EXCEPTION = 404_00;
     private static final int BAD_REQUEST = 400_00;
+    private static final int FORBIDDEN = 403_01;
     private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error";
     private static final String INVALID_VALUE = "invalid value: ";
 
@@ -121,6 +123,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = InvalidPageException.class)
     protected ResponseEntity<Object> handleConflict(InvalidPageException ex, WebRequest request) {
         return getErrorResponseEntity(ex, request);
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    protected ResponseEntity<Object> handleConflict(AccessDeniedException ex, WebRequest request) {
+        LOGGER.error(ex.getMessage(), ex);
+        ExceptionModel body = new ExceptionModel(ex.getMessage(), FORBIDDEN);
+        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 
     @Override

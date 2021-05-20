@@ -16,6 +16,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +64,7 @@ public class GiftCertificateController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('write_certificates')")
     public ResponseEntity<GiftCertificateTagDto> saveGiftCertificate(@Validated(SaveGroup.class) @RequestBody GiftCertificateTagDto certificate) throws ValidationException {
         GiftCertificateTagDto saved = certificateService.save(certificate);
         saved.add(linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(saved.getId())).withRel("this"));
@@ -72,11 +74,13 @@ public class GiftCertificateController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('write_certificates')")
     public void deleteCertificate(@Min(value = 1, message = "value must be more than 0!") @PathVariable(ID) Long id) {
         certificateService.deleteCertificate(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('write_certificates')")
     public ResponseEntity<GiftCertificateTagDto> updateCertificate(@Validated(UpdateGroup.class) @RequestBody GiftCertificateTagDto certificateDto, @Min(value = 1, message = "value must be more than 0!") @PathVariable Long id) throws ValidationException {
         GiftCertificateTagDto updated = certificateService.updateCertificate(certificateDto, id);
         updated.add((linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(id)).withRel("this")));
@@ -85,15 +89,13 @@ public class GiftCertificateController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('write_certificates')")
     public ResponseEntity<GiftCertificateTagDto> patchCertificate(@Validated(PatchGroup.class) @RequestBody GiftCertificateTagDto certificateDto, @Min(value = 1, message = "value must be more than 0!") @PathVariable Long id) throws ValidationException {
         GiftCertificateTagDto updated = certificateService.patchUpdate(id, certificateDto);
         updated.add((linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(id)).withRel("this")));
         addMappingToAll(updated);
         return ResponseEntity.ok(updated);
     }
-
-
-
 
     @GetMapping()
     public ResponseEntity<PagedModel<EntityModel<GiftCertificateTagDto>>> getByParam(RequestParams specification, Pageable pageable) {

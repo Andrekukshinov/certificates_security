@@ -11,6 +11,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,7 @@ public class TagController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('write_tags')")
     public ResponseEntity<TagDto> saveTag(@Validated(SaveGroup.class) @RequestBody TagDto tag) {
         TagDto saved = tagService.save(tag);
         saved.add(linkTo(methodOn(TagController.class).getTagById(saved.getId())).withRel("this_tag"));
@@ -64,6 +66,7 @@ public class TagController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('write_tags')")
     public void deleteTag(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long id) {
         tagService.deleteTag(id);
     }

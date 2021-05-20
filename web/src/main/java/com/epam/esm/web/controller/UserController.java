@@ -15,6 +15,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('read_users')")
     public ResponseEntity<UserInfoDto> findById(@Min(value = 1, message = "value must be more than 0!")@PathVariable Long id) {
         UserInfoDto user = service.getById(id);
         user.add(linkTo(methodOn(UserController.class).findById(id)).withSelfRel());
@@ -61,6 +63,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/orders/{orderId}")
+    @PreAuthorize("@validateUserOrder.validateUserOrder(authentication, #userId)")
     public ResponseEntity<OrderCertificatesDto> getUserOrderDetails(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long userId,
                                                                     @Min(value = 1, message = "value must be more than 0!") @PathVariable Long orderId) {
         OrderCertificatesDto found = orderService.getUserOrderById(userId, orderId);
@@ -71,6 +74,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/orders")
+    @PreAuthorize("hasAuthority('write_order')")
     public ResponseEntity<OrderCertificatesDto> saveUserOrder(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long userId,
                                                               @Valid @RequestBody OrderCertificatesDto orderCertificatesDto) throws ValidationException {
         orderCertificatesDto.setUserId(userId);
@@ -81,8 +85,8 @@ public class UserController {
         return ResponseEntity.ok(saved);
     }
 
-
     @GetMapping("/search/tag")
+    @PreAuthorize("hasAuthority('read_users')")
     public ResponseEntity<TagDto> getTopUserMostPopularTag() {
         TagDto tag = tagService.getTopUserMostPopularTag();
         tag.add(linkTo(methodOn(TagController.class).getTagById(tag.getId())).withRel("this_tag"));
@@ -93,6 +97,7 @@ public class UserController {
 
 
     @GetMapping("/{userId}/orders")
+    @PreAuthorize("@validateUserOrder.validateUserOrder(authentication, #userId)")
     public ResponseEntity<PagedModel<EntityModel<OrderDetailsDto>>> getUserAllOrders(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long userId,
                                                                                      Pageable pageable) {
         org.springframework.data.domain.Page<OrderDetailsDto> orders = orderService.getAllUserOrders(userId, pageable);
@@ -102,6 +107,7 @@ public class UserController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasAuthority('read_users')")
     public ResponseEntity<PagedModel<EntityModel<UserInfoDto>>> getAllUsers(Pageable pageable) {
         Page<UserInfoDto> users = service.getAll(pageable);
         PagedModel<EntityModel<UserInfoDto>> entityModels = userInfoAssembler.toModel(users);

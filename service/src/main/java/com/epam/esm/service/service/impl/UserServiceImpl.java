@@ -21,7 +21,8 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private static final String NOT_FOUND = "user with id = %s not found";
+    private static final String NOT_FOUND_BY_ID = "user with id = %s not found";
+    private static final String NOT_FOUND_BY_NAME = "user with name = %s not found";
     private final UserRepository userRepository;
     private final ModelMapper mapper;
 
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoDto getById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        User user = optionalUser.orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND, id)));
+        User user = optionalUser.orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND_BY_ID, id)));
         return mapper.map(user, UserInfoDto.class);
     }
 
@@ -45,7 +46,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<UserInfoDto> findByUsername(String username) {
+        UserInfoDto result = mapper.map(userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND_BY_NAME, username))), UserInfoDto.class);
+        return Optional.of(result);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return DataAccessUtils.singleResult(userRepository.findAll(new FindUserByUsernameSpecification(username)));
     }
+
 }
