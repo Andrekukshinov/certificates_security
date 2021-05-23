@@ -3,6 +3,7 @@ package com.epam.esm.service.service.impl;
 import com.epam.esm.persistence.entity.User;
 import com.epam.esm.persistence.entity.enums.Role;
 import com.epam.esm.persistence.model.specification.FindAllSpecification;
+import com.epam.esm.persistence.model.specification.FindUserByEmailSpecification;
 import com.epam.esm.persistence.model.specification.FindUserByUsernameSpecification;
 import com.epam.esm.persistence.repository.RoleRepository;
 import com.epam.esm.persistence.repository.UserRepository;
@@ -65,10 +66,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoDto registerUser(UserRegistrationModel userDto) {
-        userRepository.findByUsername(userDto.getUsername()).ifPresent(
+
+        FindUserByUsernameSpecification usernameSpecification = new FindUserByUsernameSpecification(userDto.getUsername());
+        FindUserByEmailSpecification emailSpecification = new FindUserByEmailSpecification(userDto.getEmail());
+        userRepository.findAll(usernameSpecification.or(emailSpecification)).stream().findAny().ifPresent(
                 (userFound)-> {
-                    throw new EntityAlreadyExistsException("user with username " + userDto.getUsername()
-                            +" already exists!");
+                    throw new EntityAlreadyExistsException("user with username " + userDto.getUsername() + " already exists!");
         });
         User user = mapper.map(userDto);
         Optional<Role> optionalRole = roleRepository.findById("USER");
