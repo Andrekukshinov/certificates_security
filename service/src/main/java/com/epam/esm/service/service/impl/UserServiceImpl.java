@@ -8,7 +8,7 @@ import com.epam.esm.persistence.repository.RoleRepository;
 import com.epam.esm.persistence.repository.UserRepository;
 import com.epam.esm.service.dto.user.UserInfoDto;
 import com.epam.esm.service.dto.user.UserRegistrationModel;
-import com.epam.esm.service.exception.DeletedEntityException;
+import com.epam.esm.service.exception.DeletedRoleException;
 import com.epam.esm.service.exception.EntityAlreadyExistsException;
 import com.epam.esm.service.exception.EntityNotFoundException;
 import com.epam.esm.service.mapper.UserMapper;
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
         });
         User user = mapper.map(userDto);
         Optional<Role> optionalRole = roleRepository.findById("USER");
-        Role role = optionalRole.orElseThrow(() -> new DeletedEntityException("user cannot be registered with role user"));
+        Role role = optionalRole.orElseThrow(() -> new DeletedRoleException("user cannot be registered with role user"));
         user.setRole(role);
         user.setPassword(encoder.encode(user.getPassword()));
         User saved = userRepository.save(user);

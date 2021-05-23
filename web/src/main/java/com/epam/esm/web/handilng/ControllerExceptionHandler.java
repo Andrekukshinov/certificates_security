@@ -2,6 +2,7 @@ package com.epam.esm.web.handilng;
 
 import com.epam.esm.persistence.exception.SortingException;
 import com.epam.esm.service.exception.DeleteTagInUseException;
+import com.epam.esm.service.exception.DeletedRoleException;
 import com.epam.esm.service.exception.EntityAlreadyExistsException;
 import com.epam.esm.service.exception.EntityNotFoundException;
 import com.epam.esm.service.exception.InvalidPageException;
@@ -39,6 +40,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     private static final int INTERNAL_SERVER_ERROR = 500_01;
     private static final int ENTITY_NOT_FOUND_EXCEPTION = 404_01;
     private static final int ENTITY_EXISTS_EXCEPTION = 409_01;
+    private static final int ROLE_NOT_EXISTS_EXCEPTION = 409_02;
     private static final int NOT_FOUND_EXCEPTION = 404_00;
     private static final int BAD_REQUEST = 400_00;
     private static final int FORBIDDEN = 403_01;
@@ -98,6 +100,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleConflict(DeleteTagInUseException ex, WebRequest request) {
         LOGGER.error(ex.getMessage(), ex);
         ExceptionModel body = new ExceptionModel(ex.getMessage(), ENTITY_EXISTS_EXCEPTION);
+        return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(value = DeletedRoleException.class)
+    protected ResponseEntity<Object> handleConflict(DeletedRoleException ex, WebRequest request) {
+        LOGGER.error(ex.getMessage(), ex);
+        ExceptionModel body = new ExceptionModel("registration currently not available", ROLE_NOT_EXISTS_EXCEPTION);
         return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
