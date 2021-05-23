@@ -4,6 +4,7 @@ import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.order.OrderCertificatesDto;
 import com.epam.esm.service.dto.order.OrderDetailsDto;
 import com.epam.esm.service.dto.user.UserInfoDto;
+import com.epam.esm.service.dto.user.UserRegistrationModel;
 import com.epam.esm.service.exception.ValidationException;
 import com.epam.esm.service.service.OrderService;
 import com.epam.esm.service.service.TagService;
@@ -62,26 +63,35 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<UserInfoDto> registerUser(@Valid @RequestBody UserRegistrationModel userDto) {
+        UserInfoDto user = service.registerUser(userDto);
+        user.add(linkTo(methodOn(UserController.class).findById(user.getId())).withSelfRel());
+        user.add(linkTo(methodOn(UserController.class).getAllUsers(null)).withRel("all_users"));
+        user.add(linkTo(methodOn(UserController.class).getUserAllOrders(user.getId(), null)).withRel("all_orders"));
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping("/{userId}/orders/{orderId}")
     @PreAuthorize("@validateUserOrder.validateUserOrder(authentication, #userId)")
     public ResponseEntity<OrderCertificatesDto> getUserOrderDetails(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long userId,
                                                                     @Min(value = 1, message = "value must be more than 0!") @PathVariable Long orderId) {
         OrderCertificatesDto found = orderService.getUserOrderById(userId, orderId);
-        found.add(linkTo(methodOn(UserController.class).getUserOrderDetails(found.getUserId(), found.getId())).withSelfRel());
-        found.add(linkTo(methodOn(UserController.class).getUserAllOrders(found.getUserId(), null)).withRel("all_orders"));
-        found.add(linkTo(methodOn(UserController.class).findById(found.getUserId())).withRel("this_user"));
+        found.add(linkTo(methodOn(UserController.class).getUserOrderDetails(userId, found.getId())).withSelfRel());
+        found.add(linkTo(methodOn(UserController.class).getUserAllOrders(userId, null)).withRel("all_orders"));
+        found.add(linkTo(methodOn(UserController.class).findById(userId)).withRel("this_user"));
         return ResponseEntity.ok(found);
     }
 
     @PostMapping("/{userId}/orders")
-    @PreAuthorize("hasAuthority('write_order')")
+    @PreAuthorize("hasAuthority('write_orders')")
     public ResponseEntity<OrderCertificatesDto> saveUserOrder(@Min(value = 1, message = "value must be more than 0!") @PathVariable Long userId,
                                                               @Valid @RequestBody OrderCertificatesDto orderCertificatesDto) throws ValidationException {
         orderCertificatesDto.setUserId(userId);
         OrderCertificatesDto saved = orderService.save(orderCertificatesDto);
         saved.add(linkTo(methodOn(UserController.class).findById(userId)).withRel("this_user"));
-        saved.add(linkTo(methodOn(UserController.class).getUserAllOrders(saved.getUserId(), null)).withRel("all_orders"));
-        saved.add(linkTo(methodOn(UserController.class).getUserOrderDetails(saved.getUserId(), saved.getId())).withRel("this"));
+        saved.add(linkTo(methodOn(UserController.class).getUserAllOrders(userId, null)).withRel("all_orders"));
+        saved.add(linkTo(methodOn(UserController.class).getUserOrderDetails(userId, saved.getId())).withRel("this"));
         return ResponseEntity.ok(saved);
     }
 

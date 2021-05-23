@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -125,8 +126,8 @@ public class TagServiceImpl implements TagService {
     }
 
     public Optional<Tag> getTagFromRepo(String name) {
-    Page<Tag> tagPage = tagRepository.findAll(new TagNameSpecification(name), Pageable.unpaged());
-    return Optional.ofNullable(DataAccessUtils.singleResult(tagPage.getContent()));
+    List<Tag> tagPage = tagRepository.findAll(new TagNameSpecification(name));
+    return Optional.ofNullable(DataAccessUtils.singleResult(tagPage));
     }
 
     @Override

@@ -1,20 +1,23 @@
 package com.epam.esm.service.service.impl;
 
 import com.epam.esm.persistence.entity.User;
+import com.epam.esm.persistence.entity.enums.Role;
 import com.epam.esm.persistence.model.specification.FindAllSpecification;
 import com.epam.esm.persistence.model.specification.FindUserByUsernameSpecification;
 import com.epam.esm.persistence.repository.UserRepository;
 import com.epam.esm.service.dto.user.UserInfoDto;
+import com.epam.esm.service.dto.user.UserRegistrationModel;
+import com.epam.esm.service.exception.EntityAlreadyExistsException;
 import com.epam.esm.service.exception.EntityNotFoundException;
 import com.epam.esm.service.mapper.UserMapper;
 import com.epam.esm.service.service.UserService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,11 +29,13 @@ public class UserServiceImpl implements UserService {
     private static final String NOT_FOUND_BY_NAME = "user with name = %s not found";
     private final UserRepository userRepository;
     private final UserMapper mapper;
+    private final PasswordEncoder encoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper mapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper mapper, PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.mapper = mapper;
+        this.encoder = encoder;
     }
 
     @Override
@@ -52,6 +57,20 @@ public class UserServiceImpl implements UserService {
                 .findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(NOT_FOUND_BY_NAME, username))));
         return Optional.of(result);
+    }
+
+    @Override
+    public UserInfoDto registerUser(UserRegistrationModel userDto) {
+        userRepository.findByUsername(userDto.getUsername()).ifPresent(
+                (userFound)-> {
+                    throw new EntityAlreadyExistsException("user with username " + userDto.getUsername()
+                            +" already exists!");
+        });
+        User user = mapper.map(userDto);
+        user.setRole(Role.USER);
+        user.setPassword(encoder.encode(user.getPassword()));
+        User saved = userRepository.save(user);
+        return mapper.map(saved);
     }
 
     @Override

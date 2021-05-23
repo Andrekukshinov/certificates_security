@@ -3,7 +3,6 @@ package com.epam.esm.persistence.entity;
 import com.epam.esm.persistence.audit.listeners.EntityListener;
 import com.epam.esm.persistence.entity.enums.GiftCertificateStatus;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -38,7 +37,7 @@ public class GiftCertificate {
     @Enumerated(EnumType.STRING)
     private GiftCertificateStatus status;
     private Integer duration;
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(
             name = "tags_gift_certificates",
             joinColumns = {

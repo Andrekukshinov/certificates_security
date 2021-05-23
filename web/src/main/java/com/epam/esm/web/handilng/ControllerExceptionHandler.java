@@ -169,11 +169,15 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
 }
 //todo fix all classes (make them work with spring pageable +
-// migrate to spring data + add abstract repo for all common methods
 // create separate status codes 4 the same exception types with different messages
-//  ask what to do when last page is 0(no content found for the page(#1)) and if cur page > last page
-// FIX PUT & PATCH METHODS!!!!!!!!!!!!(WITH JPA)
+// read about handling exception from filters
+// FIX SAVE ORDER
+// check all requests
 
-//todo for 20.05:
+//todo for weekends:
 // 1) move to properties file secret key!
-// 2) add login sign up functionality
+// 2) FIX SAVE ORDER
+// 3) read about handling exception from filters (and probably handle exception)
+// 4) check all requests (cover asmap usecases)
+// 5) add sign up functionality
+// 6) (Optional) enums to db

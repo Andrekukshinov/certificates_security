@@ -3,6 +3,8 @@ package com.epam.esm.web.security.config;
 import com.epam.esm.service.service.UserService;
 import com.epam.esm.web.filter.JwtUsernameAndPasswordAuthenticationFilter;
 import com.epam.esm.web.filter.JwtVerificationFilter;
+import com.epam.esm.web.handilng.AuthenticationExceptionHandler;
+import com.epam.esm.web.handilng.AuthorizationExceptionHandler;
 import com.epam.esm.web.security.jwt.JwtManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -39,10 +41,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .exceptionHandling().accessDeniedHandler(new AuthorizationExceptionHandler())
+                .authenticationEntryPoint(new AuthenticationExceptionHandler())
+                .and()
                 .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtManager))
                 .addFilterAfter(new JwtVerificationFilter(jwtManager),  JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/v1/certificates/**", "/api/v1/tags/**")
+                .permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/users/signup")
                 .permitAll()
                 .anyRequest()
                 .authenticated();

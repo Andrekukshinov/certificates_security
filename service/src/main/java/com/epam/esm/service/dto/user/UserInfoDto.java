@@ -7,15 +7,15 @@ import java.util.Objects;
 public class UserInfoDto extends RepresentationModel<UserInfoDto> {
     private Long id;
     private String email;
-    private String nickname;
+    private String username;
 
     public UserInfoDto() {
     }
 
-    public UserInfoDto(Long id, String email, String nickname) {
+    public UserInfoDto(Long id, String email, String username) {
         this.id = id;
         this.email = email;
-        this.nickname = nickname;
+        this.username = username;
     }
 
     public Long getId() {
@@ -36,12 +36,12 @@ public class UserInfoDto extends RepresentationModel<UserInfoDto> {
         this.email = email;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class UserInfoDto extends RepresentationModel<UserInfoDto> {
         return "UserDetailsDto{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
-                ", nickname='" + nickname + '\'' +
+                ", username='" + username + '\'' +
                 '}';
     }
 
@@ -62,11 +62,11 @@ public class UserInfoDto extends RepresentationModel<UserInfoDto> {
             return false;
         }
         UserInfoDto that = (UserInfoDto) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getEmail(), that.getEmail()) && Objects.equals(getNickname(), that.getNickname());
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getEmail(), that.getEmail()) && Objects.equals(getUsername(), that.getUsername());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getEmail(), getNickname());
+        return Objects.hash(getId(), getEmail(), getUsername());
     }
 }

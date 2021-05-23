@@ -1,7 +1,7 @@
 package com.epam.esm.service.service;
 
-import com.epam.esm.persistence.entity.User;
 import com.epam.esm.service.dto.user.UserInfoDto;
+import com.epam.esm.service.dto.user.UserRegistrationModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,4 +28,6 @@ public interface UserService extends UserDetailsService {
     Page<UserInfoDto> getAll(Pageable pageable);
 
     Optional<UserInfoDto> findByUsername(String username);
+
+    UserInfoDto registerUser(UserRegistrationModel user);
 }

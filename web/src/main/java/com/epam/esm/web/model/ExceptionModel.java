@@ -2,11 +2,11 @@ package com.epam.esm.web.model;
 
 public class ExceptionModel {
     private String message;
-    private int statusCode;
+    private int status;
 
-    public ExceptionModel(String message, int statusCode) {
+    public ExceptionModel(String message, int status) {
         this.message = message;
-        this.statusCode = statusCode;
+        this.status = status;
     }
 
     public ExceptionModel() {
@@ -20,19 +20,19 @@ public class ExceptionModel {
         this.message = message;
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public int getStatus() {
+        return status;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "ExceptionModel{" +
                 "message='" + message + '\'' +
-                ", statusCode=" + statusCode +
+                ", statusCode=" + status +
                 '}';
     }
 
@@ -47,7 +47,7 @@ public class ExceptionModel {
 
         ExceptionModel that = (ExceptionModel) o;
 
-        if (getStatusCode() != that.getStatusCode()) {
+        if (getStatus() != that.getStatus()) {
             return false;
         }
         return getMessage() != null ? getMessage().equals(that.getMessage()) : that.getMessage() == null;
@@ -56,7 +56,7 @@ public class ExceptionModel {
     @Override
     public int hashCode() {
         int result = getMessage() != null ? getMessage().hashCode() : 0;
-        result = 31 * result + getStatusCode();
+        result = 31 * result + getStatus();
         return result;
     }
 }

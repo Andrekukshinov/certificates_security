@@ -1,6 +1,7 @@
 package com.epam.esm.service.dto.order;
 
 import com.epam.esm.persistence.entity.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.Valid;
@@ -17,6 +18,7 @@ public class OrderCertificatesDto extends RepresentationModel<OrderCertificatesD
     private Long id;
     private LocalDateTime createDate;
     private BigDecimal totalPrice;
+    @JsonIgnore
     private Long userId;
     @Valid
     @NotEmpty(message = "certificate amount must be > 1!")

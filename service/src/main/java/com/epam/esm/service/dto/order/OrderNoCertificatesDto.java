@@ -11,17 +11,15 @@ public class OrderNoCertificatesDto {
     private LocalDateTime createDate;
     private BigDecimal totalPrice;
     private OrderStatus status;
-    private Long userId;
 
     public OrderNoCertificatesDto() {
     }
 
-    public OrderNoCertificatesDto(Long id, LocalDateTime createDate, BigDecimal totalPrice, OrderStatus status, Long userId) {
+    public OrderNoCertificatesDto(Long id, LocalDateTime createDate, BigDecimal totalPrice, OrderStatus status) {
         this.id = id;
         this.createDate = createDate;
         this.totalPrice = totalPrice;
         this.status = status;
-        this.userId = userId;
     }
 
     public Long getId() {
@@ -56,14 +54,6 @@ public class OrderNoCertificatesDto {
         this.status = status;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -73,12 +63,12 @@ public class OrderNoCertificatesDto {
             return false;
         }
         OrderNoCertificatesDto that = (OrderNoCertificatesDto) o;
-        return Objects.equals(id, that.id) && Objects.equals(createDate, that.createDate) && Objects.equals(totalPrice, that.totalPrice) && status == that.status && Objects.equals(userId, that.userId);
+        return Objects.equals(id, that.id) && Objects.equals(createDate, that.createDate) && Objects.equals(totalPrice, that.totalPrice) && status == that.status;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, createDate, totalPrice, status, userId);
+        return Objects.hash(id, createDate, totalPrice, status);
     }
 
     @Override
@@ -88,7 +78,6 @@ public class OrderNoCertificatesDto {
                 ", createDate=" + createDate +
                 ", totalPrice=" + totalPrice +
                 ", status=" + status +
-                ", userId=" + userId +
                 '}';
     }
 }

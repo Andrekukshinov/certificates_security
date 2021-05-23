@@ -17,7 +17,6 @@ import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.model.RequestParams;
 import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.service.TagService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
@@ -82,8 +81,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService{
         certificateMapper.map(certificateDto, found);
         found.setStatus(GiftCertificateStatus.ACTIVE);
         found.setLastUpdateDate(LocalDateTime.now());
-        GiftCertificate updated = certificateRepository.save(found);
         saveCertificateTags(found);
+        GiftCertificate updated = certificateRepository.save(found);
         return certificateMapper.map(updated);
     }
 

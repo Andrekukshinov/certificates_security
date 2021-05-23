@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,11 +30,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter  {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-            if (authorization == null || !authorization.startsWith("Jwt ")) {
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            String jwt = authorization.replace("Jwt ", "");
+            String jwt = authorization.replace("Bearer ", "");
             String subject = jwtManager.getUsername(jwt);
             if (!jwtManager.isNotExpiredToken(jwt)) {
                 throw new InsufficientAuthenticationException("token expired!");

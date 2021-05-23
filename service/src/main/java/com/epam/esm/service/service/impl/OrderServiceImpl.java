@@ -12,7 +12,6 @@ import com.epam.esm.service.dto.order.OrderCertificateUnitDto;
 import com.epam.esm.service.dto.order.OrderCertificatesDto;
 import com.epam.esm.service.dto.order.OrderDetailsDto;
 import com.epam.esm.service.exception.EntityNotFoundException;
-import com.epam.esm.service.mapper.OrderCertificateMapper;
 import com.epam.esm.service.mapper.OrderMapper;
 import com.epam.esm.service.mapper.OrderUnitMapper;
 import com.epam.esm.service.model.RequestParams;
@@ -42,15 +41,13 @@ public class OrderServiceImpl implements OrderService {
     private static final String NOT_FOUND_PATTERN = "Certificate with id = %s not found";
     private final GiftCertificateService certificateService;
     private final OrderMapper mapper;
-    private final OrderCertificateMapper orderCertificateMapper;
     private final OrderUnitMapper orderUnitMapper;
     private final OrderRepository repository;
 
     @Autowired
-    public OrderServiceImpl(GiftCertificateService certificateService, OrderMapper mapper, OrderCertificateMapper orderCertificateMapper, OrderUnitMapper orderUnitMapper, OrderRepository repository) {
+    public OrderServiceImpl(GiftCertificateService certificateService, OrderMapper mapper, OrderUnitMapper orderUnitMapper, OrderRepository repository) {
         this.certificateService = certificateService;
         this.mapper = mapper;
-        this.orderCertificateMapper = orderCertificateMapper;
         this.orderUnitMapper = orderUnitMapper;
         this.repository = repository;
     }
@@ -64,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderCertificate> toBeSaved = getOrderCertificatesWithExistingCertificates(orderCertificates, ids);
 
         Order saved = saveOrder(orderCertificatesDto, toBeSaved);
-        return orderCertificateMapper.map(saved);
+        return mapper.map(saved);
     }
 
     private List<OrderCertificate> getOrderCertificatesWithExistingCertificates(Set<OrderCertificateUnitDto> orderCertificates, List<Long> ids) {
@@ -74,8 +71,7 @@ public class OrderServiceImpl implements OrderService {
         validateCertificates(orderCertificates, idAndCertificate);
         return orderCertificates
                 .stream()
-                .map(orderCertificateUnitDto ->
-                        orderUnitMapper.map(orderCertificateUnitDto))
+                .map(orderUnitMapper::map)
                 .peek(orderCertificate -> {
                     Long id = orderCertificate.getOrderCertificate().getId();
                     orderCertificate.setOrderCertificate(idAndCertificate.get(id));
@@ -108,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order saveOrder(OrderCertificatesDto orderCertificatesDto, List<OrderCertificate> toBeSaved) {
-        Order order = orderCertificateMapper.map(orderCertificatesDto);
+        Order order = mapper.map(orderCertificatesDto);
         order.setOrderCertificates(toBeSaved);
         order.setCreateDate(LocalDateTime.now());
         setTotalPriceOrZero(order);
@@ -145,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
         Order nullableValue = DataAccessUtils.singleResult(repository.findAll(specification, Pageable.unpaged()).getContent());
         Optional<Order> orderOptional = Optional.ofNullable(nullableValue);
         Order order = orderOptional.orElseThrow(() -> new EntityNotFoundException(String.format("order (id=%s), of user (id=%s), bot found", orderId, userId)));
-        return orderCertificateMapper.map(order);
+        return mapper.map(order);
     }
 
     @Override
@@ -153,6 +149,6 @@ public class OrderServiceImpl implements OrderService {
         Specification<Order> getAllSpec = new FindUserOrdersSpecification(userId);
         Page<Order> ordersPage = repository.findAll(getAllSpec, pageable);
 
-        return ordersPage.map(mapper::map);
+        return ordersPage.map(mapper::mapToOrderDetails);
     }
 }
