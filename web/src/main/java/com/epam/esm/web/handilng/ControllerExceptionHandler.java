@@ -177,16 +177,8 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 }
-//todo fix all classes (make them work with spring pageable +
-// create separate status codes 4 the same exception types with different messages
-// read about handling exception from filters
-// FIX SAVE ORDER
-// check all requests
+//todo create separate status codes 4 the same exception types with different messages
 
 //todo for weekends:
 // 1) move to properties file secret key!
-// 2) FIX SAVE ORDER
-// 3) read about handling exception from filters (and probably handle exception)
-// 4) check all requests (cover asmap usecases)
-// 5) add sign up functionality
-// 6) (Optional) enums to db
+

@@ -1,4 +1,4 @@
-package com.epam.esm.persistence.entity.enums;
+package com.epam.esm.persistence.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

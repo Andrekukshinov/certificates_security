@@ -1,7 +1,6 @@
 package com.epam.esm.persistence.entity;
 
 import com.epam.esm.persistence.audit.listeners.EntityListener;
-import com.epam.esm.persistence.entity.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,7 +1,7 @@
 package com.epam.esm.service.service.impl;
 
+import com.epam.esm.persistence.entity.Role;
 import com.epam.esm.persistence.entity.User;
-import com.epam.esm.persistence.entity.enums.Role;
 import com.epam.esm.persistence.model.specification.FindAllSpecification;
 import com.epam.esm.persistence.model.specification.FindUserByEmailSpecification;
 import com.epam.esm.persistence.model.specification.FindUserByUsernameSpecification;
